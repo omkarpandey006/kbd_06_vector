@@ -233,5 +233,36 @@ class AiApiService {
     };
   }
 
+  /// POST the [image] and [correctClass] to /correct endpoint.
+  Future<bool> correct(XFile image, String correctClass) async {
+    try {
+      final baseUrl = ApiConfig.baseUrl;
+      final uri = Uri.parse('$baseUrl/correct');
+      final request = http.MultipartRequest('POST', uri);
+
+      final bytes = await image.readAsBytes();
+      final filename = image.name.isNotEmpty ? image.name : 'scrap.jpg';
+      final contentType = _guessContentType(filename);
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: filename,
+          contentType: contentType,
+        ),
+      );
+      request.fields['correct_class'] = correctClass;
+
+      final streamed = await request.send().timeout(ApiConfig.requestTimeout);
+      final response = await http.Response.fromStream(streamed);
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Correction error: $e');
+      return false;
+    }
+  }
+
   void dispose() => _client.close();
 }

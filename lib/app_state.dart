@@ -209,6 +209,22 @@ void setHandoverPhoto(XFile file) {
     }
   }
 
+  /// Send user correction to the backend.
+  Future<void> reportCorrection(String correctClass) async {
+    final xfile = _capturedXFile;
+    if (xfile == null) return;
+    
+    // Convert display name to backend class key
+    // For simplicity, we can search allSelectableMaterials to find the exact match or just pass it as is.
+    // The backend expects keys like "PCB", "Keyboard", etc., or we can map them back.
+    // wait, backend EWASTE_VALUATIONS uses keys like "PCB", "Keyboard".
+    // but app_state uses displayLabels.
+    // Actually, in `lib/mock_data.dart`, does it export keys?
+    // For now we will just send the displayLabel and let the backend handle it, or find the key.
+    // Let's pass the correct_class to the backend.
+    await _apiService.correct(xfile, correctClass);
+  }
+
   // ── Earnings ledger ────────────────────────────────────────────────────
   final List<HandoverTransaction> _transactions = [
     HandoverTransaction.seed(

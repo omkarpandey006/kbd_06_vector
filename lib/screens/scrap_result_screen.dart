@@ -279,20 +279,55 @@ class _ScrapResultScreenState extends State<ScrapResultScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 16),
-                                  _ActionButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _materialConfirmed = true;
-                                      });
-                                    },
-                                    icon: _materialConfirmed
-                                        ? Icons.check_circle_rounded
-                                        : Icons.check_rounded,
-                                    label: _materialConfirmed
-                                        ? 'Confirmed'
-                                        : 'Confirm $material',
-                                    outlined: true,
-                                  ),
+                                  if (_materialConfirmed)
+                                    _ActionButton(
+                                      onPressed: () {},
+                                      icon: Icons.check_circle_rounded,
+                                      label: 'Confirmed',
+                                      outlined: true,
+                                    )
+                                  else
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _ActionButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _materialConfirmed = true;
+                                              });
+                                            },
+                                            icon: Icons.check_rounded,
+                                            label: 'Correct',
+                                            outlined: false,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _ActionButton(
+                                            onPressed: () async {
+                                              final chosen = await showModalBottomSheet<String>(
+                                                context: context,
+                                                backgroundColor: AppColors.white,
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.vertical(
+                                                    top: Radius.circular(AppSpacing.radiusLg),
+                                                  ),
+                                                ),
+                                                builder: (_) => _MaterialPicker(current: context.read<AppState>().scannedMaterial),
+                                              );
+                                              if (chosen != null && context.mounted) {
+                                                context.read<AppState>().setMaterialManually(chosen);
+                                                await context.read<AppState>().reportCorrection(chosen);
+                                                setState(() => _materialConfirmed = true);
+                                              }
+                                            },
+                                            icon: Icons.close_rounded,
+                                            label: 'Incorrect',
+                                            outlined: true,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                 ],
                               ),
                             ),
