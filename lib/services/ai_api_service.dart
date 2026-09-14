@@ -1,9 +1,11 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../config/api_config.dart';
 
 // ── Response model ────────────────────────────────────────────────────────────
@@ -39,15 +41,11 @@ class PredictResponse {
           : null,
       components: (json['components'] as List<dynamic>? ?? [])
           .map(
-            (item) => DetectedComponent.fromJson(
-              item as Map<String, dynamic>,
-            ),
+            (item) => DetectedComponent.fromJson(item as Map<String, dynamic>),
           )
           .toList(),
       valuation: json['valuation'] != null
-          ? ValuationInfo.fromJson(
-              json['valuation'] as Map<String, dynamic>,
-            )
+          ? ValuationInfo.fromJson(json['valuation'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -77,14 +75,12 @@ class PredictedMaterial {
     );
   }
 }
+
 class DetectedComponent {
   final String name;
   final int count;
 
-  const DetectedComponent({
-    required this.name,
-    required this.count,
-  });
+  const DetectedComponent({required this.name, required this.count});
 
   factory DetectedComponent.fromJson(Map<String, dynamic> json) {
     return DetectedComponent(
@@ -112,10 +108,8 @@ class ValuationInfo {
   factory ValuationInfo.fromJson(Map<String, dynamic> json) {
     return ValuationInfo(
       grade: json['grade'] as String? ?? '',
-      rateMinPerKg:
-          (json['rate_min_per_kg'] as num?)?.toDouble() ?? 0.0,
-      rateMaxPerKg:
-          (json['rate_max_per_kg'] as num?)?.toDouble() ?? 0.0,
+      rateMinPerKg: (json['rate_min_per_kg'] as num?)?.toDouble() ?? 0.0,
+      rateMaxPerKg: (json['rate_max_per_kg'] as num?)?.toDouble() ?? 0.0,
       currency: json['currency'] as String? ?? 'INR',
       note: json['note'] as String? ?? '',
     );
@@ -193,13 +187,16 @@ class AiApiService {
         ),
       );
 
-      print('[AiApiService] POST ${ApiConfig.predictEndpoint} '
-          '(${bytes.length} bytes, file: $filename)');
+      print(
+        '[AiApiService] POST ${ApiConfig.predictEndpoint} '
+        '(${bytes.length} bytes, file: $filename)',
+      );
 
       final streamed = await request.send().timeout(
         ApiConfig.requestTimeout,
-        onTimeout: () =>
-            throw const NetworkError('Request timed out. Check your connection.'),
+        onTimeout: () => throw const NetworkError(
+          'Request timed out. Check your connection.',
+        ),
       );
       final response = await http.Response.fromStream(streamed);
 
@@ -214,7 +211,8 @@ class AiApiService {
         json = jsonDecode(response.body) as Map<String, dynamic>;
       } catch (_) {
         return const PredictFailure(
-            ParseError('Could not parse server response.'));
+          ParseError('Could not parse server response.'),
+        );
       }
 
       return PredictSuccess(PredictResponse.fromJson(json));
