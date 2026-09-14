@@ -10,7 +10,7 @@ class ApiConfig {
 
   /// Live Cloudflare HTTPS Tunnel URL connecting directly to the active Python AI backend.
   static String customBaseUrl =
-      'https://hay-lovers-station-howard.trycloudflare.com';
+      'https://rows-smoke-tomato-lovers.trycloudflare.com';
 
   /// Detect platform default host.
   static String get defaultHost {
@@ -18,7 +18,7 @@ class ApiConfig {
       final isLocalWeb =
           Uri.base.host == 'localhost' || Uri.base.host == '127.0.0.1';
       if (!isLocalWeb) {
-        return 'https://hay-lovers-station-howard.trycloudflare.com';
+        return 'https://rows-smoke-tomato-lovers.trycloudflare.com';
       }
       return 'http://127.0.0.1:8000';
     }
